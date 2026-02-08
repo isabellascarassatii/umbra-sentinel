@@ -11,4 +11,4 @@ Sistema de monitoramento Full Stack desenvolvido para auditoria de logs e segura
 ## 🩸 Funcionalidades
 - Interceptação de requisições via Middleware.
 - Registro em tempo real de IP, Rota e Método HTTP.
-- Dashboard de auditoria com estética gótica/dark.
+- Dashboard de auditoria com estética dark.
