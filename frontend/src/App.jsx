@@ -6,7 +6,13 @@ const App = () => {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    axios.get('https://umbra-sentinel-production.up.railway.app/api/logs')
+    // Força a atualização do título da aba assim que o site carrega
+    document.title = "Umbra Sentinel | Auditoria de Segurança";
+
+    // Busca a URL da API da variável de ambiente ou usa o link direto como fallback
+    const API_URL = import.meta.env.VITE_API_URL || 'https://umbra-sentinel-production.up.railway.app';
+
+    axios.get(`${API_URL}/api/logs`)
       .then(res => setLogs(res.data))
       .catch(err => console.error("Erro ao buscar logs da nuvem:", err));
   }, []);
@@ -35,15 +41,23 @@ const App = () => {
           {logs.length > 0 ? (
             logs.map(log => (
               <tr key={log.id}>
-                <td style={{ opacity: 0.6, fontSize: '0.8rem' }}>{new Date(log.timestamp).toLocaleString()}</td>
+                <td style={{ opacity: 0.6, fontSize: '0.8rem' }}>
+                  {new Date(log.timestamp).toLocaleString()}
+                </td>
                 <td style={{ fontWeight: 'bold' }}>{log.ip_usuario}</td>
-                <td><span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>{log.metodo}</span></td>
+                <td>
+                  <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                    {log.metodo}
+                  </span>
+                </td>
                 <td className="status-bullet">● {log.status_acesso}</td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="4" style={{ textAlign: 'center', opacity: 0.5 }}>Aguardando sinais da sentinela...</td>
+              <td colSpan="4" style={{ textAlign: 'center', opacity: 0.5 }}>
+                Aguardando sinais da sentinela...
+              </td>
             </tr>
           )}
         </tbody>
