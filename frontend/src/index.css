@@ -1,14 +1,11 @@
-/* src/index.css */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* O restante do seu código ( :root, body, .dashboard-container... ) continua abaixo */
 
 :root {
-  background-color: #0a0a0a; /* Fundo Preto Profundo */
-  color: #e0e0e0; /* Texto Prata Fosco */
+  background-color: #0a0a0a; 
+  color: #e0e0e0; 
   font-family: 'Courier New', Courier, monospace;
 }
 
@@ -26,7 +23,7 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #800000; /* Linha Vinho */
+  border-bottom: 2px solid #800000; 
   padding-bottom: 1rem;
   margin-bottom: 2rem;
 }
@@ -40,7 +37,7 @@ body {
 .logs-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #141414; /* Cinza Escuro */
+  background-color: #141414;
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 

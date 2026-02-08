@@ -6,7 +6,7 @@ const App = () => {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    // Força a atualização do título da aba assim que o site carrega
+
     document.title = "Umbra Sentinel | Auditoria de Segurança";
 
     // Busca a URL da API da variável de ambiente ou usa o link direto como fallback
