@@ -11,10 +11,11 @@ app.use(express.json());
 // 1. Configuração da Conexão usando Variáveis de Ambiente
 // Isso protege suas credenciais de banco de dados em um ambiente profissional
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER, 
-    password: process.env.DB_PASSWORD, 
-    database: process.env.DB_NAME
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT || 41844 // Use a porta que vimos no seu Railway
 });
 
 // Conexão com o Banco de Dados MySQL
