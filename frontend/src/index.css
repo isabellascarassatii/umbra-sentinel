@@ -1,0 +1,57 @@
+/* src/index.css */
+:root {
+  background-color: #0a0a0a; /* Fundo Preto Profundo */
+  color: #e0e0e0; /* Texto Prata Fosco */
+  font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.dashboard-container {
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.header-umbra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #800000; /* Linha Vinho */
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.header-umbra h1 {
+  color: #800000;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #141414; /* Cinza Escuro */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logs-table th {
+  background-color: #1a1a1a;
+  color: #800000;
+  padding: 1rem;
+  text-align: left;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.logs-table td {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.status-bullet {
+  color: #800000;
+  font-weight: bold;
+}
