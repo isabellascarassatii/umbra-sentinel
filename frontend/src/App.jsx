@@ -6,7 +6,6 @@ const App = () => {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    // ATUALIZADO: Agora aponta para a sua sentinela real no Railway
     axios.get('https://umbra-sentinel-production.up.railway.app/api/logs')
       .then(res => setLogs(res.data))
       .catch(err => console.error("Erro ao buscar logs da nuvem:", err));
