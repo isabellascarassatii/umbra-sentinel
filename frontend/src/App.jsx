@@ -6,8 +6,10 @@ const App = () => {
   const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    // Agora o Backend já está enviando os dados, como vimos no seu terminal!
-    axios.get('http://localhost:3000/api/logs').then(res => setLogs(res.data));
+    // ATUALIZADO: Agora aponta para a sua sentinela real no Railway
+    axios.get('https://umbra-sentinel-production.up.railway.app/api/logs')
+      .then(res => setLogs(res.data))
+      .catch(err => console.error("Erro ao buscar logs da nuvem:", err));
   }, []);
 
   return (
@@ -31,14 +33,20 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {logs.map(log => (
-            <tr key={log.id}>
-              <td style={{ opacity: 0.6, fontSize: '0.8rem' }}>{new Date(log.timestamp).toLocaleString()}</td>
-              <td style={{ fontWeight: 'bold' }}>{log.ip_usuario}</td>
-              <td><span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>{log.metodo}</span></td>
-              <td className="status-bullet">● {log.status_acesso}</td>
+          {logs.length > 0 ? (
+            logs.map(log => (
+              <tr key={log.id}>
+                <td style={{ opacity: 0.6, fontSize: '0.8rem' }}>{new Date(log.timestamp).toLocaleString()}</td>
+                <td style={{ fontWeight: 'bold' }}>{log.ip_usuario}</td>
+                <td><span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>{log.metodo}</span></td>
+                <td className="status-bullet">● {log.status_acesso}</td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" style={{ textAlign: 'center', opacity: 0.5 }}>Aguardando sinais da sentinela...</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

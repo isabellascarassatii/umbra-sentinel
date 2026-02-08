@@ -1,4 +1,11 @@
 /* src/index.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* O restante do seu código ( :root, body, .dashboard-container... ) continua abaixo */
+
 :root {
   background-color: #0a0a0a; /* Fundo Preto Profundo */
   color: #e0e0e0; /* Texto Prata Fosco */
