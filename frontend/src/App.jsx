@@ -4,34 +4,34 @@ import { Shield, Activity, AlertTriangle } from 'lucide-react';
 
 const App = () => {
   const [logs, setLogs] = useState([]);
-  const [error, setError] = useState(null); // Novo estado para capturar falhas
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    document.title = "Umbra Sentinel | Auditoria de Segurança";
-
+  const fetchLogs = () => {
     const API_URL = import.meta.env.VITE_API_URL || 'https://umbra-sentinel-production.up.railway.app';
-
+    
     axios.get(`${API_URL}/api/logs`)
       .then(res => {
-        // Verifica se a resposta é de fato a lista de logs (um array)
         if (Array.isArray(res.data)) {
           setLogs(res.data);
           setError(null);
-        } else {
-          // Se a API mandar {"error": "..."}, capturamos aqui
-          setError(res.data.error || "Erro inesperado nos dados.");
         }
       })
-      .catch(err => {
-        console.error("Erro ao buscar logs da nuvem:", err);
-        setError("A sentinela está fora de alcance. Verifique a conexão com o banco.");
+      .catch(() => {
+        setError("A sentinela está fora de alcance. Verifique a conexão.");
       });
+  };
+
+  useEffect(() => {
+    document.title = "Umbra Sentinel | Auditoria";
+    fetchLogs();
+    const interval = setInterval(fetchLogs, 5000); // Atualiza a cada 5 segundos
+    return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className="dashboard-container">
-      <header className="header-umbra">
-        <h1 className="flex items-center gap-2">
+    <div className="dashboard-container" style={{ background: '#050505', color: '#fff', minHeight: '100vh', padding: '20px', fontFamily: 'monospace' }}>
+      <header style={{ borderBottom: '1px solid #1a1a1a', paddingBottom: '20px', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <h1 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '10px', margin: 0 }}>
           <Shield /> UMBRA SENTINEL
         </h1>
         <div style={{ opacity: 0.6, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -41,43 +41,37 @@ const App = () => {
       </header>
 
       {error && (
-        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', padding: '10px', borderRadius: '4px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid #ef4444', color: '#ef4444', padding: '15px', borderRadius: '4px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <AlertTriangle size={20} /> {error}
         </div>
       )}
 
-      <table className="logs-table">
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
         <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Origem (IP)</th>
-            <th>Método</th>
-            <th>Status</th>
+          <tr style={{ textAlign: 'left', color: '#ef4444', borderBottom: '1px solid #1a1a1a' }}>
+            <th style={{ padding: '12px' }}>TIMESTAMP</th>
+            <th style={{ padding: '12px' }}>ORIGEM (IP)</th>
+            <th style={{ padding: '12px' }}>MÉTODO</th>
+            <th style={{ padding: '12px' }}>STATUS</th>
           </tr>
         </thead>
         <tbody>
-          {logs.length > 0 ? (
-            logs.map(log => (
-              <tr key={log.id}>
-                <td style={{ opacity: 0.6, fontSize: '0.8rem' }}>
-                  {new Date(log.timestamp).toLocaleString()}
-                </td>
-                <td style={{ fontWeight: 'bold' }}>{log.ip_usuario}</td>
-                <td>
-                  <span style={{ background: 'rgba(255,255,255,0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                    {log.metodo}
-                  </span>
-                </td>
-                <td className="status-bullet">● {log.status_acesso}</td>
-              </tr>
-            ))
-          ) : !error && (
-            <tr>
-              <td colSpan="4" style={{ textAlign: 'center', opacity: 0.5 }}>
-                Aguardando sinais da sentinela...
+          {logs.map(log => (
+            <tr key={log.id} style={{ borderBottom: '1px solid #0f0f0f' }}>
+              <td style={{ padding: '12px', opacity: 0.5 }}>{new Date(log.timestamp).toLocaleString()}</td>
+              <td style={{ padding: '12px' }}>{log.ip_usuario}</td>
+              <td style={{ padding: '12px' }}>
+                <span style={{ background: '#1a1a1a', padding: '2px 8px', borderRadius: '4px' }}>{log.metodo}</span>
+              </td>
+              <td style={{ 
+                padding: '12px', 
+                color: log.status_acesso.includes('ALERTA') ? '#ef4444' : '#22c55e',
+                fontWeight: 'bold'
+              }}>
+                ● {log.status_acesso}
               </td>
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
     </div>
