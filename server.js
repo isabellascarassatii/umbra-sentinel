@@ -34,17 +34,29 @@ const pool = mysql.createPool({
 })();
 
 
+
 app.use(async (req, res, next) => {
 
-    if (req.url === '/api/logs' || req.url === '/' || req.url.includes('favicon')) return next(); 
+    if (
+        req.method === 'OPTIONS' || 
+        req.path === '/api/logs' || 
+        req.path === '/' || 
+        req.path.includes('favicon')
+    ) {
+        return next();
+    }
 
-    const { ip, url, method } = req;
-    const status = url.includes('restrita') ? '⚠️ ALERTA: Acesso Sensível' : 'Acesso Permitido';
+    const { ip, method, path } = req; 
+    
+
+    const isSensitive = path.toLowerCase().includes('restrita');
+    const status = isSensitive ? '⚠️ ALERTA: Acesso Sensível' : 'Acesso Permitido';
 
     const query = "INSERT INTO logs_auditoria (ip_usuario, metodo, rota, status_acesso) VALUES (?, ?, ?, ?)";
     
     try {
-        await pool.execute(query, [ip, method, url, status]);
+
+        await pool.execute(query, [ip, method, path, status]);
     } catch (err) {
         console.error("⚠️ Falha ao registrar log no banco:", err.message);
     }
