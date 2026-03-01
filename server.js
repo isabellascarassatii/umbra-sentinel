@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise'); // Mudamos para a versão Promise
 const cors = require('cors'); 
 const app = express();
 
@@ -8,55 +8,67 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Configuração da Conexão usando Variáveis de Ambiente
-const db = mysql.createConnection({
+// 1. Configuração do POOL de Conexão (Resolve o erro "closed state")
+const pool = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
-    port: process.env.MYSQLPORT || 3306 
+    port: process.env.MYSQLPORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10, // Mantém até 10 conexões prontas
+    queueLimit: 0,
+    enableKeepAlive: true,
+    keepAliveInitialDelay: 10000
 });
 
-// Conexão com o Banco de Dados MySQL
-db.connect((err) => {
-    if (err) return console.error('❌ Umbra Sentinel: Falha na conexão.', err.message);
-    console.log('✅ Umbra Sentinel: Banco de Dados Conectado com Sucesso.');
-});
+// Teste de conexão inicial para o log gótico
+(async () => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('✅ Umbra Sentinel: Banco de Dados Conectado com Sucesso.');
+        connection.release(); // Libera a conexão de volta para o pool
+    } catch (err) {
+        console.error('❌ Umbra Sentinel: Falha crítica na conexão.', err.message);
+    }
+})();
 
-// 2. MIDDLEWARE: A Sentinela de Auditoria
-app.use((req, res, next) => {
-    // Evita loop de logs ao acessar a própria API de monitoramento
-    if (req.url === '/api/logs') return next(); 
+// 2. MIDDLEWARE: A Sentinela de Auditoria (Refatorada para Async)
+app.use(async (req, res, next) => {
+    if (req.url === '/api/logs' || req.url === '/') return next(); 
 
     const { ip, url, method } = req;
-    
-    // Lógica para identificar acessos a áreas sensíveis
     const status = url.includes('restrita') ? '⚠️ ALERTA: Acesso Sensível' : 'Acesso Permitido';
 
     const query = "INSERT INTO logs_auditoria (ip_usuario, metodo, rota, status_acesso) VALUES (?, ?, ?, ?)";
     
-    db.query(query, [ip, method, url, status], (err) => {
-        if (err) console.error("⚠️ Falha ao registrar log no banco:", err.message);
-    });
+    try {
+        // O pool gerencia a abertura/fechamento automaticamente aqui
+        await pool.execute(query, [ip, method, url, status]);
+    } catch (err) {
+        console.error("⚠️ Falha ao registrar log no banco:", err.message);
+    }
     next();
 });
 
 // 3. ROTAS DO SISTEMA
 
-// Rota inicial para evitar o erro "Cannot GET /"
 app.get('/', (req, res) => {
     res.send('<h1>Umbra Sentinel API: Sistema de Vigilância Ativo.</h1>');
 });
 
-// Rota que alimenta o dashboard React gótico
-app.get('/api/logs', (req, res) => {
-    db.query("SELECT * FROM logs_auditoria ORDER BY timestamp DESC", (err, results) => {
-        if (err) return res.status(500).json({ error: "Erro ao buscar logs" });
+// Rota do Dashboard (Refatorada para Async/Await)
+app.get('/api/logs', async (req, res) => {
+    try {
+        const [results] = await pool.query("SELECT * FROM logs_auditoria ORDER BY timestamp DESC");
         res.json(results);
-    });
+    } catch (err) {
+        console.error("Erro na rota /api/logs:", err.message);
+        res.status(500).json({ error: "Erro interno ao buscar logs da sentinela." });
+    }
 });
 
-// ROTA ISCA (Honey Pot): Use esta rota para testar o sistema
+// ROTA ISCA (Honey Pot)
 app.get('/api/area-restrita', (req, res) => {
     res.json({ 
         alerta: "Sinal capturado pela Umbra Sentinel!",
